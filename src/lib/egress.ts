@@ -77,8 +77,6 @@ const PATTERNS: Array<{ kind: PiiKind; re: RegExp; mask: string }> = [
 /** Synthetic demo names. A real build would use an on-device NER pass; the rule keeps the demo deterministic. */
 const KNOWN_NAMES = ['Daniel Reyes', 'Maria Chen', 'Wei Zhang', 'Anna Kovacs', 'Liam O\u2019Connor', 'Sofia Alvarez'];
 
-const MEDICAL_TERMS = /\b(fracture|diagnosis|MRI|CT scan|prescription|fractured|X-ray|concussion|sprain)\b|骨折|诊断|处方|核磁|CT/i;
-
 export function scanPii(text: string): { masked: string; removed: RemovedBit[] } {
   const counts = new Map<PiiKind, number>();
   let masked = text;
@@ -95,8 +93,6 @@ export function scanPii(text: string): { masked: string; removed: RemovedBit[] }
   for (const p of PATTERNS) {
     masked = masked.replace(p.re, () => { bump(p.kind); return p.mask; });
   }
-
-  if (MEDICAL_TERMS.test(text) && !counts.has('medical')) bump('medical');
 
   const removed = [...counts.entries()].map(([kind, count]) => ({ kind, count }));
   return { masked, removed };

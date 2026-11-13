@@ -183,7 +183,7 @@ function EgressPage() {
                 <div className="ev stay" key={e.id}>
                   <div>
                     <div className="label">{t(e.labelKey)}</div>
-                    <div className="meta">{e.cloudText.trim() ? t('egress.notSentZero') : t('egress.nothingToSend')}</div>
+                    <div className="meta">{e.originalChars > 0 ? t('egress.notSentZero') : t('egress.nothingToSend')}</div>
                   </div>
                   {e.cloudText.trim() && (
                     <button className="mini" onClick={() => block(e.id, false)}>{t('egress.unblock')}</button>

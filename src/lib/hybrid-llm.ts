@@ -241,8 +241,8 @@ export const mockLLM: HybridLLM = {
     const dt = text.match(/(20\d{2})[-/年](\d{1,2})[-/月](\d{1,2})[日]?\s*(\d{1,2}:\d{2})?/);
     const depth = text.match(/(\d{1,3})\s*(?:cm|厘米|公分)/i);
     const policy = text.match(/[A-Z]{1,3}-?\d{3,4}-?\d{3,4}/);
-    const injury = /(骨折|挫伤|软组织|擦伤|扭伤|烧伤|无伤)/.exec(text)?.[1] ?? '';
-    const cause = /(水淹|泡水|涉水|暴雨|洪水|碰撞|追尾)/.exec(text)?.[1] ?? '';
+    const injury = /(骨折|挫伤|软组织|擦伤|扭伤|烧伤|无伤|fracture|sprain|burn|concussion|injury)/i.exec(text)?.[1] ?? '';
+    const cause = /(水淹|泡水|涉水|暴雨|洪水|碰撞|追尾|flood|water damage|collision|rear-end)/i.exec(text)?.[1] ?? '';
 
     const obj: Record<string, string> = {
       incidentTime: dt ? `${dt[1]}-${String(dt[2]).padStart(2, '0')}-${String(dt[3]).padStart(2, '0')}${dt[4] ? ' ' + dt[4] : ''}` : '',
