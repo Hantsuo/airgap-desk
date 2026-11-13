@@ -1,0 +1,86 @@
+{
+  "name": "Airgap Desk",
+  "description": "Offline-first claims inspection desk. Decides what a cloud model may see, and signs a verifiable receipt of exactly what left the device.",
+  "schema_version": "0.1",
+  "homepage": "https://airgap-desk.web.app/",
+  "contact": {
+    "team": "Airgap Desk",
+    "hackathon": "#BuildHybridAI 2026"
+  },
+  "capabilities": [
+    {
+      "id": "on_device_extraction",
+      "summary": "Extract claim fields from field notes on the device (Chrome Gemini Nano, ONLY_ON_DEVICE).",
+      "input": "text",
+      "output": "json"
+    },
+    {
+      "id": "egress_manifest",
+      "summary": "Classify field sensitivity and produce a per-item manifest of the exact bytes a cloud model would receive.",
+      "input": "claim_draft",
+      "output": "egress_manifest"
+    },
+    {
+      "id": "signed_egress_receipt",
+      "summary": "Ed25519 signature over a canonical JSON payload, chained by SHA-256 to the previous receipt.",
+      "input": "approved_items",
+      "output": "receipt"
+    },
+    {
+      "id": "verify_receipt",
+      "summary": "Client-side verification of a receipt with its embedded public key. No account, no backend.",
+      "input": "receipt",
+      "output": "verification_result",
+      "endpoint": "/verify"
+    },
+    {
+      "id": "citation_check",
+      "summary": "Single-turn on-device check that a cloud conclusion is supported by the clause sentence it cites.",
+      "input": "conclusion_with_citation",
+      "output": "pass_or_return"
+    }
+  ],
+  "agent_network": {
+    "nodes": [
+      {
+        "id": "device",
+        "role": "policy_enforcement_point",
+        "trust": "local"
+      },
+      {
+        "id": "cloud",
+        "role": "clause_and_pattern_engine",
+        "trust": "remote_receives_approved_only"
+      },
+      {
+        "id": "verifier",
+        "role": "third_party_verification",
+        "trust": "stateless"
+      }
+    ],
+    "edges": [
+      {
+        "from": "device",
+        "to": "cloud",
+        "requires": "egress_manifest_approval",
+        "payload": "redacted_approved_only"
+      },
+      {
+        "from": "cloud",
+        "to": "device",
+        "requires": "citation_on_every_conclusion"
+      },
+      {
+        "from": "verifier",
+        "to": "device",
+        "requires": "receipt_json"
+      }
+    ]
+  },
+  "limits": {
+    "on_device_model": "Chrome desktop 139+, Gemini Nano component",
+    "on_device_input": "text or JPEG/PNG, single-turn, 9216 tokens",
+    "demo_data": "synthetic only"
+  },
+  "verify_endpoint": "https://airgap-desk.web.app/verify/"
+}
