@@ -138,7 +138,7 @@ const en: Dict = {
   'verify.paste': 'Paste receipt JSON',
   'verify.placeholder': '{"payload": … }',
   'verify.button': 'Verify',
-  'verify.valid': 'Signature valid · content unmodified',
+  'verify.valid': 'Signature valid · this receipt has not been altered',
   'verify.invalid': 'Signature invalid · this receipt was modified',
   'verify.parsing': 'Cannot parse this receipt',
   'verify.case': 'Case',
