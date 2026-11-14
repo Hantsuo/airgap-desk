@@ -136,7 +136,7 @@ function ReviewPage() {
 
   return (
     <div className="shell">
-      <TopBar tagKey="app.tagDraft" />
+      <TopBar tagKey="app.tagDraft" badge={receipt ? `RECEIPT ${receipt.short} · SENT` : undefined} />
       <StatusBar />
 
       <div className="grid" style={{ gridTemplateColumns: '0.95fr 1.35fr' }}>
