@@ -189,7 +189,7 @@ const en: Dict = {
   'common.bytes': 'bytes',
   'common.copy': 'Copy',
   'common.close': 'Close',
-  'common.lang': '中文',
+  'common.lang': 'ZH',
   'common.loading': 'Loading…',
 };
 
