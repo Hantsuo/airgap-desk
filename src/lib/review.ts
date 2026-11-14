@@ -82,6 +82,7 @@ Read the policy text and return at most 3 conclusions that matter for this claim
 
 Hard rules:
 - Every conclusion MUST carry a citation whose "quote" is copied CHARACTER FOR CHARACTER from the policy text. Do not paraphrase, do not shorten with ellipses, do not invent a section.
+- Write every conclusion and every "basis" value in English only. Do not use Chinese characters.
 - If you cannot cite an exact sentence, do not return that conclusion.
 - Return ONLY JSON: {"conclusions":[{"id":"c1","text":"...","basis":"which field","citation":{"section":"4.2.1","page":12,"quote":"exact sentence"}}]}
 
@@ -189,7 +190,18 @@ export async function runCloudReview(cloudPayload: unknown): Promise<CloudResult
           },
         } satisfies Conclusion;
       })
-      .filter((c) => c.text);
+      .filter((c) => c.text)
+      // The cloud must answer in English; never render a Chinese token in the English UI.
+      .filter((c) => !/[\u3400-\u9FFF]/.test(c.text) && !/[\u3400-\u9FFF]/.test(c.basis));
+
+    if (conclusions.length === 0) {
+      return {
+        conclusions: [],
+        payload: payloadText,
+        latencyMs: Math.round(performance.now() - t0),
+        cloudError: 'Cloud returned no English conclusions. Re-run the check.',
+      };
+    }
 
     const checked: CheckedConclusion[] = [];
     for (const c of conclusions) checked.push(await checkConclusion(c));

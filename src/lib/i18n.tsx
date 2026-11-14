@@ -10,6 +10,7 @@ const en: Dict = {
   'app.name': 'AIRGAP DESK',
   'app.tag': 'Field capture · drafts never leave this laptop',
   'app.tagDraft': 'Local draft · not sent',
+  'app.tagReceipt': 'Receipt · signed on this device',
   'app.synthetic': 'SYNTHETIC DATA',
   'app.localOnly': 'ON THIS DEVICE · 0 BYTES SENT',
 
@@ -196,6 +197,7 @@ const zh: Dict = {
   'app.name': 'AIRGAP DESK',
   'app.tag': '现场采集 · 草稿不离开这台电脑',
   'app.tagDraft': '本地草稿 · 未发送',
+  'app.tagReceipt': '回执 · 已在本机签名',
   'app.synthetic': '合成数据',
   'app.localOnly': '只在本机 · 0 字节已外发',
 
