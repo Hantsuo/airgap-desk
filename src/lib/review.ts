@@ -171,28 +171,39 @@ export async function runCloudReview(cloudPayload: unknown): Promise<CloudResult
   const payloadText = JSON.stringify(cloudPayload, null, 2);
   const t0 = performance.now();
   try {
-    const raw = await runInCloud(CLOUD_PROMPT(payloadText));
-    const parsed = parseJsonArray(raw);
-    if (!parsed) {
+    let conclusions: Conclusion[] = [];
+    let sawJson = false;
+    // The cloud occasionally drops a Chinese token into one conclusion. The UI is
+    // English-only, so those are dropped; if that leaves a thin answer, ask once more
+    // instead of showing one conclusion where the report expects several.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const raw = await runInCloud(CLOUD_PROMPT(payloadText));
+      const parsed = parseJsonArray(raw);
+      if (!parsed) continue;
+      sawJson = true;
+      conclusions = parsed
+        .map((v, i) => {
+          const o = v as Record<string, any>;
+          return {
+            id: String(o.id ?? `c${i + 1}`),
+            text: String(o.text ?? ''),
+            basis: String(o.basis ?? ''),
+            citation: {
+              section: String(o.citation?.section ?? ''),
+              page: Number(o.citation?.page ?? 0),
+              quote: String(o.citation?.quote ?? ''),
+            },
+          } satisfies Conclusion;
+        })
+        .filter((c) => c.text)
+        // The cloud must answer in English; never render a Chinese token in the English UI.
+        .filter((c) => !/[\u3400-\u9FFF]/.test(c.text) && !/[\u3400-\u9FFF]/.test(c.basis));
+      if (conclusions.length >= 2) break;
+    }
+
+    if (!sawJson) {
       return { conclusions: [], payload: payloadText, latencyMs: Math.round(performance.now() - t0), cloudError: 'Cloud did not return JSON.' };
     }
-    const conclusions = parsed
-      .map((v, i) => {
-        const o = v as Record<string, any>;
-        return {
-          id: String(o.id ?? `c${i + 1}`),
-          text: String(o.text ?? ''),
-          basis: String(o.basis ?? ''),
-          citation: {
-            section: String(o.citation?.section ?? ''),
-            page: Number(o.citation?.page ?? 0),
-            quote: String(o.citation?.quote ?? ''),
-          },
-        } satisfies Conclusion;
-      })
-      .filter((c) => c.text)
-      // The cloud must answer in English; never render a Chinese token in the English UI.
-      .filter((c) => !/[\u3400-\u9FFF]/.test(c.text) && !/[\u3400-\u9FFF]/.test(c.basis));
 
     if (conclusions.length === 0) {
       return {
